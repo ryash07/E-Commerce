@@ -8,7 +8,7 @@ const Slider = () => {
     const [currentSlide,setCurrentSlide] = useState(0)
 
     const data= [
-        "https://media.gettyimages.com/id/1198271727/photo/abstract-wavy-object.jpg?s=612x612&w=0&k=20&c=CuuC79GvcO06K5EpBeQ2AMO68TkZS8mw9ZydJ2BMfeo=",
+        "https://img.freepik.com/free-psd/special-sales-banner-template_23-2148975924.jpg?size=626&ext=jpg",
         "https://media.gettyimages.com/id/1353592941/photo/cotton-fabrick-flowing-by-wind-on-beige-background-stock-photo.jpg?s=612x612&w=0&k=20&c=LFjWCP_Z8VRF2PL47B3CI7LDY4HH3csjBsqx9wA4tis=",
         "https://media.gettyimages.com/id/1221473823/photo/circle-of-smoke.jpg?s=612x612&w=0&k=20&c=p_35CgCJ5xTLoZBNITLyP0dEqxXHVnRdMa_8RGxS3Jw="
     ]
