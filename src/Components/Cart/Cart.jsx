@@ -1,51 +1,62 @@
 import React from 'react'
 import "./Cart.scss"
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import {useSelector} from "react-redux"
+import { useDispatch } from 'react-redux';
+import { removeItem, resetCart } from '../../redux/cartReducer';
+import {loadStripe} from '@stripe/stripe-js'
+
+import { makeRequest } from '../../makeRequest';
 
 const Cart = () => {
 
-    const data = [
-        {
-            id:1,
-            img:"https://media.gettyimages.com/id/1368192847/photo/man-with-vitiligo-standing-with-hands-behind-back.jpg?s=612x612&w=0&k=20&c=5YfgVGwRdnDkIUD_olsy_d9hY87fWu_AEeR1pmtiGeQ=",
-            img2:"https://media.gettyimages.com/id/1348936186/photo/cheerful-young-woman-listening-to-music.jpg?s=612x612&w=0&k=20&c=urlDp4oYbSaMyH8SOPSNOP4nu-uAmshNYAuFz5ZZdfI=",
-            title:"Graphic T-shirt",
-            desc:"Long sleeved graphic t-shirt with half body language",
-            isNew:true,
-            oldPrice:19,
-            price:12,
-        },
-        {
-            id:2,
-            img:"https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRFi4DuvV0VfodyEpUd-8BxSL8ENRVA8K0wLoRH44ON6do7ukzUPtoemXUeUozIo4yyC2TSQDPT5feq9DxJqFT2dbWWJJQhyba3tbUGAq8_Z8K0NtbproQ2nw",
-            title:"Graphic Hoddie",
-            desc:"Long sleeved graphic t-shirt with half body language",
-            isNew:true,
-            oldPrice:19,
-            price:12,
-        }
-    ]
+    const products = useSelector(state => state.cart.products)
+    const dispatch = useDispatch()
+    const totalPrice = () =>{
+        let total =0
+        products.forEach((item)=>(total += item.quantity * item.price))
+        return total.toFixed(2)
+    }
 
+    const stripePromise = loadStripe('pk_test_51MgrPySIWyPWqN6MSzaA8raruzis7m55PHknC2RTOgGbRu8MdMVmkCx3NZ4ssk5xtYw8YQf78BNZjTCZmLCKwPhn00HZ79EbEK');
+
+
+    const handlePayment = async ()=>{
+        try{
+           const stripe = await stripePromise;
+
+           const res = await makeRequest.post("/orders",{
+            products
+           });
+
+           await stripe.redirectToCheckout({
+            sessionId:res.data.stripeSession.id,
+           })
+
+        }catch(err){
+            console.log(err)
+        }
+    }
   return (
     <div className='cart'>
         <h1>Products in your cart</h1>
-        {data?.map(item=>(
+        {products?.map(item=>(
             <div className="item" key={item.id}>
                 <img src={item.img} alt="" />
                 <div className="details">
                     <h1>{item.title}</h1>
                     <p>{item.desc?.substring(0,100)}</p>
-                    <div className="price">1 x ${item.price}</div>
+                    <div className="price">{item.quantity} x ${item.price}</div>
                 </div>
-                <DeleteOutlinedIcon className="delete"/>
+                <DeleteOutlinedIcon className="delete" onClick={()=>dispatch(removeItem(item.id))}/>
             </div>
         ))}
         <div className="total">
             <span>SUBTOTAL</span>
-            <span>$123</span>
+            <span>${totalPrice()}</span>
         </div>
-        <button>PROCEED TO CHECKOUT</button>
-        <span className="reset">Reset Cart</span>
+        <button onClick={handlePayment}>PROCEED TO CHECKOUT</button>
+        <span className="reset" onClick={()=>dispatch(resetCart())}>Reset Cart</span>
         
     </div>
   )
